@@ -26,13 +26,15 @@ concurrency:
 
 jobs:
   calendars:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # needed to find the most recently added spreadsheet
 
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v10.3.3 # setup-uv publishes no floating major tag
+        with:
+          enable-cache: false # a single small dependency; not worth caching
 
       - name: Fetch and convert the newest jaaragenda
         if: github.event_name != 'push'
