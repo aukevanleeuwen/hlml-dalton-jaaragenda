@@ -1,0 +1,6 @@
+# Columns from the jaaragenda to convert, and the name to use for each.
+# The name is put in front of every event and becomes the .ics file name.
+[columns]
+"Algemeen" = "Dalton"
+"Leerjaar 1" = "Immy"
+"Leerjaar 3VWO" = "Evie"

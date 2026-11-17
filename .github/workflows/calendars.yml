@@ -1,0 +1,67 @@
+name: Update calendars
+
+# Rebuild calendars/*.ics and commit the result back to the branch:
+# - daily and on manual start: fetch the newest jaaragenda from the school
+#   website into source/ first;
+# - on push: use the most recently added spreadsheet in source/ (for when the
+#   column choice, the script or a manually uploaded spreadsheet changes).
+on:
+  schedule:
+    - cron: "17 5 * * *" # daily, 05:17 UTC
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "source/**"
+      - "columns.toml"
+      - "convert.py"
+      - ".github/workflows/calendars.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: calendars
+  cancel-in-progress: false
+
+jobs:
+  calendars:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed to find the most recently added spreadsheet
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Fetch and convert the newest jaaragenda
+        if: github.event_name != 'push'
+        run: uv run convert.py --fetch
+
+      - name: Convert the most recently added jaaragenda
+        if: github.event_name == 'push'
+        run: |
+          xlsx=$(git log -1 --no-renames --format= --name-only --diff-filter=AM -- 'source/*.xlsx')
+          if [ -z "$xlsx" ] || [ ! -f "$xlsx" ]; then
+            echo "::error::No .xlsx file found in source/"
+            exit 1
+          fi
+          echo "Spreadsheet: $xlsx"
+          uv run convert.py "$xlsx"
+
+      - name: Commit changes
+        run: |
+          git add source/ calendars/
+          if git diff --cached --quiet; then
+            echo "Calendars are unchanged."
+            exit 0
+          fi
+          xlsx=$(git diff --cached --no-renames --name-only --diff-filter=AM -- 'source/*.xlsx' | head -n 1)
+          message="Update calendars"
+          if [ -n "$xlsx" ]; then
+            message="Update calendars to $(basename "$xlsx")"
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "$message"
+          git push
