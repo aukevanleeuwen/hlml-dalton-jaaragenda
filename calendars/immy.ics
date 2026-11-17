@@ -349,11 +349,11 @@ DESCRIPTION:Leerjaar 1. Source: Jaaragenda_Dalton-26-27-Ouders-en-leerlinge
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:e6b8338998f6d95202014eec0e57e016d552a285@hlml-dalton-jaaragenda
+UID:e086b74ad5737f1f81765b8f802a1de19de96116@hlml-dalton-jaaragenda
 DTSTAMP:20261117T222145Z
 DTSTART;VALUE=DATE:20261219
 DTEND;VALUE=DATE:20270104
-SUMMARY:Immy: Kerstvakantie
+SUMMARY:Immy: Kerstvakantie (oud)
 DESCRIPTION:Leerjaar 1. Source: Jaaragenda_Dalton-26-27-Ouders-en-leerlinge
  n-aug-26-1.xlsx
 TRANSP:TRANSPARENT

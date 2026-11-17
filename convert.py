@@ -85,12 +85,16 @@ def extract_vacations(items):
     vacations, rest, open_vac = [], [], None
     for day, text in items:
         low = text.lower()
-        m = re.match(r"(?:start )?(\w*vakantie)\b(.*)", low)
+        m = re.match(r"(?:start )?(\w*vakantie)\b(.*)", text, re.IGNORECASE)
         if m and not low.startswith("laatste"):
-            name = m.group(1).capitalize()
-            until = re.search(r"t/m (\d+) (\w+)", m.group(2))
-            if until and until.group(2) in MONTHS:  # e.g. "start zomervakantie t/m 22 augustus"
-                month = MONTHS[until.group(2)]
+            until = re.search(r"\s*t/m (\d+) (\w+)", m.group(2), re.IGNORECASE)
+            if until and until.group(2).lower() not in MONTHS:
+                until = None
+            # Keep any extra text, e.g. "(vanaf 12.00 uur)", but not the end date.
+            extra = m.group(2).replace(until.group(0), "") if until else m.group(2)
+            name = " ".join(filter(None, [m.group(1).capitalize(), extra.strip()]))
+            if until:  # e.g. "start zomervakantie t/m 22 augustus"
+                month = MONTHS[until.group(2).lower()]
                 year = day.year + (1 if month < day.month else 0)
                 vacations.append((day, dt.date(year, month, int(until.group(1))), name))
             else:
